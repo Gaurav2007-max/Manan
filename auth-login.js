@@ -1,6 +1,19 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
-import { getAuth, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
-import { getFirestore, doc, getDoc, collection, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
+import { 
+  initializeApp 
+} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+
+import { 
+  getAuth, 
+  signInWithEmailAndPassword, 
+  signOut,
+  createUserWithEmailAndPassword   // ← ADD THIS
+} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+
+import { 
+  getFirestore, 
+  doc, 
+  setDoc 
+} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js"; 
 
 const firebaseConfig = {
   apiKey: "AIzaSyDJtmkCoy3cgn-0RKEyvxqbxEycvl29gZU",
@@ -53,4 +66,5 @@ btn.addEventListener('click', async () => {
     console.error(err);
     msg.innerText = err.message || 'Sign-in failed';
   }
+
 });
