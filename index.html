@@ -6,16 +6,81 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
   <main style="max-width:420px;margin:8vh auto;padding:28px;background:#071124;border-radius:12px;color:#e6eef8">
-    <h2 style="margin:0 0 12px">Sign in to Manan</h2>
-    <label>Email</label><input id="liEmail" type="email" />
-    <label style="margin-top:8px">Password</label><input id="liPass" type="password" />
-    <div style="display:flex;gap:8px;margin-top:12px">
-      <button id="liSignIn" class="btn">Sign in</button>
+    
+    <h2 style="margin:0 0 12px">Manan Portal</h2>
+
+    <!-- Toggle buttons -->
+    <div style="display:flex;gap:10px;margin-bottom:15px">
+      <button id="showLogin" class="btn" style="flex:1">Login</button>
+      <button id="showSignup" class="btn" style="flex:1">Sign Up</button>
     </div>
-    <div id="liMsg" style="margin-top:12px;color:var(--muted)"></div>
+
+    <!-- LOGIN FORM -->
+    <div id="loginForm">
+      <label>Email</label>
+      <input id="liEmail" type="email" />
+
+      <label style="margin-top:8px">Password</label>
+      <input id="liPass" type="password" />
+
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button id="liSignIn" class="btn">Sign in</button>
+      </div>
+
+      <div id="liMsg" style="margin-top:12px;color:var(--muted)"></div>
+    </div>
+
+    <!-- SIGNUP FORM -->
+    <div id="signupForm" style="display:none">
+
+      <label>Full Name</label>
+      <input id="suName" type="text">
+
+      <label style="margin-top:10px">College Email</label>
+      <input id="suEmail" type="email">
+
+      <label style="margin-top:10px">Password</label>
+      <input id="suPass" type="password">
+
+      <label style="margin-top:10px">Year</label>
+      <input id="suYear" type="text" placeholder="e.g. 2nd">
+
+      <label style="margin-top:10px">Roll No</label>
+      <input id="suRoll" type="text">
+
+      <label style="margin-top:10px">Branch</label>
+      <input id="suBranch" type="text">
+
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button id="doSignUp" class="btn">Request Sign Up</button>
+      </div>
+
+      <div id="suMsg" style="margin-top:12px;color:var(--muted)"></div>
+    </div>
+
   </main>
 
   <script type="module" src="auth-login.js"></script>
+
+  <script>
+    // Show login or signup
+    const loginForm = document.getElementById("loginForm");
+    const signupForm = document.getElementById("signupForm");
+    const btnLogin = document.getElementById("showLogin");
+    const btnSignup = document.getElementById("showSignup");
+
+    btnSignup.addEventListener("click", () => {
+      loginForm.style.display = "none";
+      signupForm.style.display = "block";
+    });
+
+    btnLogin.addEventListener("click", () => {
+      signupForm.style.display = "none";
+      loginForm.style.display = "block";
+    });
+  </script>
+
 </body>
 </html>
