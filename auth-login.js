@@ -1,20 +1,24 @@
-import { 
-  initializeApp 
-} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+// -------- IMPORTS --------
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
 
-import { 
-  getAuth, 
-  signInWithEmailAndPassword, 
-  signOut,
-  createUserWithEmailAndPassword   // ← ADD THIS
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut
 } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
-import { 
-  getFirestore, 
-  doc, 
-  setDoc 
-} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js"; 
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  getDocs,
+  collection
+} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
+
+// -------- FIREBASE CONFIG --------
 const firebaseConfig = {
   apiKey: "AIzaSyDJtmkCoy3cgn-0RKEyvxqbxEycvl29gZU",
   authDomain: "manan-a5cac.firebaseapp.com",
@@ -29,42 +33,134 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const emailEl = document.getElementById('liEmail');
-const passEl = document.getElementById('liPass');
-const btn = document.getElementById('liSignIn');
-const msg = document.getElementById('liMsg');
 
+// -------- UI ELEMENTS --------
+const liEmail = document.getElementById("liEmail");
+const liPass = document.getElementById("liPass");
+const liSignIn = document.getElementById("liSignIn");
+const liMsg = document.getElementById("liMsg");
+
+const suName = document.getElementById("suName");
+const suEmail = document.getElementById("suEmail");
+const suPass = document.getElementById("suPass");
+const suYear = document.getElementById("suYear");
+const suRoll = document.getElementById("suRoll");
+const suBranch = document.getElementById("suBranch");
+const doSignUp = document.getElementById("doSignUp");
+const suMsg = document.getElementById("suMsg");
+
+
+// -------- ADMIN / MEMBER CHECK FUNCTION --------
 async function isApproved(user) {
-  if (!user || !user.uid) return false;
+  if (!user || !user.email) return false;
+
+  const uid = user.uid;
+  const emailLower = user.email.toLowerCase();
+
   try {
-    const adminSnap = await getDoc(doc(db,'admins',user.uid));
-    if (adminSnap.exists()) return true;
-    const memSnap = await getDoc(doc(db,'members',user.uid));
-    if (memSnap.exists()) return true;
-    // fallback: by email in admins collection
-    const all = await getDocs(collection(db,'admins'));
-    const emailLower = (user.email||'').toLowerCase();
-    let ok=false;
-    all.forEach(d=>{ const data=d.data(); if(data.email && data.email.toLowerCase()===emailLower) ok=true });
-    return ok;
-  } catch(e) {
-    console.error(e); return false;
+    // 1️⃣ Check admins by UID
+    const adminUID = await getDoc(doc(db, "admins", uid));
+    if (adminUID.exists()) return "admin";
+
+    // 2️⃣ Check admins by EMAIL
+    const admins = await getDocs(collection(db, "admins"));
+    let isAdmin = false;
+    admins.forEach(d => {
+      const data = d.data();
+      if (data.email && data.email.toLowerCase() === emailLower) {
+        isAdmin = true;
+      }
+    });
+    if (isAdmin) return "admin";
+
+    // 3️⃣ Check members by UID
+    const memUID = await getDoc(doc(db, "members", uid));
+    if (memUID.exists()) return "member";
+
+    return false;
+
+  } catch (err) {
+    console.error("Approval check error:", err);
+    return false;
   }
 }
 
-btn.addEventListener('click', async () => {
-  msg.innerText = '';
-  const email = (emailEl.value||'').trim();
-  const pass = passEl.value || '';
-  if(!email || !pass) { msg.innerText='Enter email & password'; return; }
-  try {
-    const cred = await signInWithEmailAndPassword(auth, email, pass);
-    const ok = await isApproved(cred.user);
-    if (ok) location.href = 'home.html';
-    else { msg.innerText='Account not approved. Contact admin.'; await signOut(auth); }
-  } catch(err) {
-    console.error(err);
-    msg.innerText = err.message || 'Sign-in failed';
+
+
+// -------- SIGN IN --------
+liSignIn.addEventListener("click", async () => {
+  liMsg.innerText = "";
+
+  const email = liEmail.value.trim();
+  const pass = liPass.value;
+
+  if (!email || !pass) {
+    liMsg.innerText = "Enter email & password";
+    return;
   }
 
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email, pass);
+
+    const status = await isApproved(cred.user);
+
+    if (status === "admin") {
+      liMsg.innerText = "Welcome Admin!";
+      location.href = "home.html";
+      return;
+    }
+
+    if (status === "member") {
+      liMsg.innerText = "Welcome!";
+      location.href = "home.html";
+      return;
+    }
+
+    liMsg.innerText = "Account not approved. Contact admin.";
+    await signOut(auth);
+
+  } catch (e) {
+    console.error(e);
+    liMsg.innerText = e.message;
+  }
 });
+
+
+
+// -------- SIGN UP --------
+if (doSignUp) {
+  doSignUp.addEventListener("click", async () => {
+    const name = suName.value.trim();
+    const email = suEmail.value.trim();
+    const pass = suPass.value;
+    const year = suYear.value.trim();
+    const roll = suRoll.value.trim();
+    const branch = suBranch.value.trim();
+
+    if (!name || !email || !pass) {
+      suMsg.innerText = "Please fill name, email, password";
+      return;
+    }
+
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+
+      await setDoc(doc(db, "pendingSignups", cred.user.uid), {
+        uid: cred.user.uid,
+        name,
+        email,
+        year,
+        roll,
+        branch,
+        createdAt: new Date().toISOString()
+      });
+
+      suMsg.innerText =
+        "Signup request submitted. Wait for admin approval.";
+
+    } catch (e) {
+      console.error(e);
+      suMsg.innerText = e.message;
+    }
+  });
+}
