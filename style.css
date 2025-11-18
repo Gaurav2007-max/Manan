@@ -1,0 +1,55 @@
+/* --- Basic reset & layout --- */
+    :root{--accent:#4f46e5;--muted:#6b7280;--bg:#0f172a}
+    *{box-sizing:border-box}
+    body{font-family:Inter,system-ui,Arial,Helvetica,sans-serif;margin:0;background:linear-gradient(180deg,#071029 0%, #071a2a 60%);color:#e6eef8;min-height:100vh}
+    header{display:flex;align-items:center;justify-content:space-between;padding:18px 28px;background:linear-gradient(90deg, rgba(255,255,255,0.02), transparent);backdrop-filter:blur(4px)}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#06b6d4);display:flex;align-items:center;justify-content:center;font-weight:700}
+    nav{display:flex;gap:12px}
+    a,button{color:inherit;text-decoration:none}
+    .btn{background:transparent;border:1px solid rgba(255,255,255,0.08);padding:8px 12px;border-radius:8px;cursor:pointer}
+    .container{max-width:1100px;margin:28px auto;padding:0 18px}
+
+    /* Hero */
+    .hero{display:grid;grid-template-columns:1fr 420px;gap:28px;align-items:center}
+    .hero-card{padding:28px;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 8px 30px rgba(2,6,23,0.6)}
+    h1{font-size:32px;margin:0 0 8px}
+    p.lead{color:var(--muted);margin:0 0 18px}
+
+    /* Simple animated tech lines */
+    .tech-anim{display:flex;gap:6px;flex-wrap:wrap}
+    .chip{padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,0.04);font-size:13px;background:linear-gradient(90deg, rgba(255,255,255,0.02), transparent);transform:translateY(0);animation:float 6s ease-in-out infinite}
+    .chip:nth-child(2){animation-delay:.2s}
+    .chip:nth-child(3){animation-delay:.4s}
+    @keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)}}
+
+    /* Cards grid */
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-top:18px}
+    .card{padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));}
+
+    /* Members list */
+    .member-card{display:flex;gap:12px;align-items:center;padding:10px;border-radius:10px}
+    .avatar{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,#7c3aed,#06b6d4);display:flex;align-items:center;justify-content:center;font-weight:700}
+
+    /* Admin panel modal */
+    .modal{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:none;align-items:center;justify-content:center}
+    .modal .panel{width:920px;max-width:96%;background:#071124;padding:18px;border-radius:12px}
+    .modal.show{display:flex}
+
+    /* Forms */
+    input,textarea,select{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
+    label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+
+    /* Calendar simple */
+    .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+    .day{background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);padding:10px;border-radius:8px;min-height:80px}
+    .event-badge{display:block;margin-top:8px;padding:6px;border-radius:6px;font-size:13px}
+
+    /* Gallery */
+    .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+    .photo{padding:8px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);border-radius:8px}
+
+    footer{padding:18px;text-align:center;color:var(--muted)}
+
+    /* small screens */
+    @media (max-width:920px){.hero{grid-template-columns:1fr}.logo{width:40px;height:40px}.hero-card{padding:18px}}
