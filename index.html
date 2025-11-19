@@ -4,15 +4,56 @@
   <meta charset="utf-8" />
   <title>Manan — Sign in</title>
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* Center the login box using same theme */
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background:#f5f7fa;
+      margin:0;
+      font-family: Inter, system-ui, Arial;
+      color:#1e293b;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      background: white;
+      padding: 28px;
+      border-radius: 14px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+      border: 1px solid #e2e8f0;
+    }
+
+    .login-toggle {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .login-card h2 {
+      margin: 0 0 12px;
+      font-weight: 700;
+    }
+
+    #liMsg, #suMsg {
+      margin-top: 12px;
+      color: var(--muted);
+    }
+  </style>
+
 </head>
 <body>
 
-  <main style="max-width:420px;margin:8vh auto;padding:28px;background:#071124;border-radius:12px;color:#e6eef8">
+  <main class="login-card">
     
-    <h2 style="margin:0 0 12px">Manan Portal</h2>
+    <h2>Manan Portal</h2>
 
     <!-- Toggle buttons -->
-    <div style="display:flex;gap:10px;margin-bottom:15px">
+    <div class="login-toggle">
       <button id="showLogin" class="btn" style="flex:1">Login</button>
       <button id="showSignup" class="btn" style="flex:1">Sign Up</button>
     </div>
@@ -22,14 +63,14 @@
       <label>Email</label>
       <input id="liEmail" type="email" />
 
-      <label style="margin-top:8px">Password</label>
+      <label>Password</label>
       <input id="liPass" type="password" />
 
-      <div style="display:flex;gap:8px;margin-top:12px">
-        <button id="liSignIn" class="btn">Sign in</button>
+      <div class="login-toggle" style="margin-top:12px">
+        <button id="liSignIn" class="btn" style="flex:1">Sign in</button>
       </div>
 
-      <div id="liMsg" style="margin-top:12px;color:var(--muted)"></div>
+      <div id="liMsg"></div>
     </div>
 
     <!-- SIGNUP FORM -->
@@ -38,26 +79,26 @@
       <label>Full Name</label>
       <input id="suName" type="text">
 
-      <label style="margin-top:10px">College Email</label>
+      <label>College Email</label>
       <input id="suEmail" type="email">
 
-      <label style="margin-top:10px">Password</label>
+      <label>Password</label>
       <input id="suPass" type="password">
 
-      <label style="margin-top:10px">Year</label>
+      <label>Year</label>
       <input id="suYear" type="text" placeholder="e.g. 2nd">
 
-      <label style="margin-top:10px">Roll No</label>
+      <label>Roll No</label>
       <input id="suRoll" type="text">
 
-      <label style="margin-top:10px">Branch</label>
+      <label>Branch</label>
       <input id="suBranch" type="text">
 
-      <div style="display:flex;gap:8px;margin-top:12px">
-        <button id="doSignUp" class="btn">Request Sign Up</button>
+      <div class="login-toggle" style="margin-top:12px">
+        <button id="doSignUp" class="btn" style="flex:1">Request Sign Up</button>
       </div>
 
-      <div id="suMsg" style="margin-top:12px;color:var(--muted)"></div>
+      <div id="suMsg"></div>
     </div>
 
   </main>
@@ -65,7 +106,7 @@
   <script type="module" src="auth-login.js"></script>
 
   <script>
-    // Show login or signup
+    // Toggle login/signup
     const loginForm = document.getElementById("loginForm");
     const signupForm = document.getElementById("signupForm");
     const btnLogin = document.getElementById("showLogin");
