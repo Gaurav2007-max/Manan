@@ -196,5 +196,19 @@ footer{
   .logo{width:40px;height:40px}
   .hero-card{padding:18px}
 }
+.btn-gradient {
+  background: linear-gradient(135deg, var(--accent), #06b6d4);
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: white;
+  font-weight: 600;
+  transition: .2s;
+}
+
+.btn-gradient:hover {
+  opacity: 0.9;
+}
 
 
