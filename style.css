@@ -1,59 +1,200 @@
-/* ---- Login Page Card ---- */
-.login-card {
-  max-width: 420px;
-  margin: 8vh auto;
-  padding: 28px;
-  background: #ffffff;
-  border-radius: 14px;
-  box-shadow: 0 4px 22px rgba(0,0,0,0.08);
-  color: #1e293b;
-  border: 1px solid #e2e8f0;
+/* --- Basic reset & layout --- */
+:root{
+  --accent:#4f46e5;
+  --muted:#64748b;
+  --bg:#ffffff;
 }
 
-.login-card h2 {
-  margin: 0 0 12px;
-  color: #1e293b;
+*{box-sizing:border-box}
+
+body{
+  font-family:Inter,system-ui,Arial,Helvetica,sans-serif;
+  margin:0;
+  background:#f5f7fa;
+  color:#1e293b;
+  min-height:100vh;
 }
 
-/* Toggle buttons row */
-.login-toggle {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
+header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:18px 28px;
+  background:#ffffffcc;
+  backdrop-filter:blur(6px);
+  border-bottom:1px solid #e2e8f0;
 }
 
-/* Buttons remain from previous theme */
-.login-card .btn {
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: .2s;
-}
-.login-card .btn:hover {
-  background: #f1f5f9;
+.brand{display:flex;gap:12px;align-items:center}
+
+.logo{
+  width:46px;height:46px;
+  border-radius:10px;
+  background:linear-gradient(135deg,var(--accent),#06b6d4);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;
+  color:white;
 }
 
-/* Inputs */
-.login-card input {
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #cbd5e1;
-  background: white;
-  color: #1e293b;
+nav{display:flex;gap:12px}
+a,button{color:inherit;text-decoration:none}
+
+.btn{
+  background:#ffffff;
+  border:1px solid #cbd5e1;
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  transition:.2s;
+}
+.btn:hover{background:#f1f5f9}
+
+.container{max-width:1100px;margin:28px auto;padding:0 18px}
+
+/* Hero */
+.hero{
+  display:grid;
+  grid-template-columns:1fr 420px;
+  gap:28px;
+  align-items:center;
 }
 
-.login-card label {
-  font-size: 13px;
-  color: var(--muted);
-  display: block;
-  margin-bottom: 6px;
-  margin-top: 8px;
+.hero-card{
+  padding:28px;
+  border-radius:14px;
+  background:white;
+  box-shadow:0 4px 18px rgba(0,0,0,0.08);
 }
 
-#liMsg, #suMsg {
-  color: var(--muted);
-  margin-top: 12px;
+h1{font-size:32px;margin:0 0 8px}
+p.lead{color:var(--muted);margin:0 0 18px}
+
+/* Chips */
+.tech-anim{display:flex;gap:6px;flex-wrap:wrap}
+.chip{
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid #e2e8f0;
+  font-size:13px;
+  background:#ffffff;
+  animation:float 6s ease-in-out infinite;
 }
+
+.chip:nth-child(2){animation-delay:.2s}
+.chip:nth-child(3){animation-delay:.4s}
+
+@keyframes float{
+  0%{transform:translateY(0)}
+  50%{transform:translateY(-8px)}
+  100%{transform:translateY(0)}
+}
+
+/* Cards grid */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:16px;
+  margin-top:18px;
+}
+
+.card{
+  padding:12px;
+  border-radius:12px;
+  background:white;
+  border:1px solid #e2e8f0;
+}
+
+/* Members list */
+.member-card{
+  display:flex;gap:12px;align-items:center;
+  padding:10px;
+  border-radius:10px;
+  background:#ffffff;
+  border:1px solid #e2e8f0;
+}
+
+.avatar{
+  width:56px;height:56px;
+  border-radius:10px;
+  background:linear-gradient(135deg,#7c3aed,#06b6d4);
+  color:white;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;
+}
+
+/* Modal */
+.modal{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.35);
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+.modal .panel{
+  width:920px;max-width:96%;
+  background:white;
+  padding:18px;
+  border-radius:12px;
+  border:1px solid #e2e8f0;
+}
+.modal.show{display:flex}
+
+/* Forms */
+input,textarea,select{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #cbd5e1;
+  background:white;
+  color:#1e293b;
+}
+label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+
+/* Calendar */
+.calendar{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:8px;
+}
+.day{
+  background:white;
+  border:1px solid #e2e8f0;
+  padding:10px;
+  border-radius:8px;
+  min-height:80px;
+}
+.event-badge{
+  display:block;margin-top:8px;
+  padding:6px;
+  border-radius:6px;
+  font-size:13px;
+  background:#e0e7ff;
+}
+
+/* Gallery */
+.gallery{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:10px;
+}
+.photo{
+  padding:8px;
+  background:white;
+  border-radius:8px;
+  border:1px solid #e2e8f0;
+}
+
+footer{
+  padding:18px;
+  text-align:center;
+  color:var(--muted);
+}
+
+/* Responsive */
+@media (max-width:920px){
+  .hero{grid-template-columns:1fr}
+  .logo{width:40px;height:40px}
+  .hero-card{padding:18px}
+}
+
+
