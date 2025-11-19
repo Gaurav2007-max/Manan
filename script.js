@@ -412,7 +412,7 @@
         if(combined.length === 0){galleryGrid.innerText='No photos yet.'}
         combined.forEach(p=>{
           const el=document.createElement('a'); el.href=p.link; el.target='_blank'; el.className='photo';
-          el.innerHTML=`<div style="height:100px;display:flex;align-items:center;justify-content:center;background:#020617;border-radius:8px">${p.title || 'Photo'}</div>`;
+          el.innerHTML=`<div style="height:100px;display:flex;align-items:center;justify-content:center;background: #ffffff;border: 1px solid #e2e8f0;border-radius:8px">${p.title || 'Photo'}</div>`;
           galleryGrid.appendChild(el)
         });
       }catch(e){
@@ -420,7 +420,7 @@
         if(local.length === 0) galleryGrid.innerText='No photos yet.'
         local.forEach(p=>{
           const el=document.createElement('a'); el.href=p.link; el.target='_blank'; el.className='photo';
-          el.innerHTML=`<div style="height:100px;display:flex;align-items:center;justify-content:center;background:#020617;border-radius:8px">${p.title || 'Photo'}</div>`;
+          el.innerHTML=`<div style="height:100px;display:flex;align-items:center;justify-content:center;background: #ffffff;border: 1px solid #e2e8f0;border-radius:8px">${p.title || 'Photo'}</div>`;
           galleryGrid.appendChild(el)
         })
       }
@@ -480,3 +480,4 @@
 
     // Expose some helpers for debugging
     window._manan = { loadLeaders, loadMembers, loadEvents, loadPhotos, initFullCalendar, fcEvents };
+
