@@ -299,7 +299,8 @@
             const local = JSON.parse(localStorage.getItem('manan_local_photos') || '[]');
             local.push(photoObj);
             localStorage.setItem('manan_local_photos', JSON.stringify(local));
-            msgEl.innerText = 'Saved locally (Firestore permission denied). Sign in as admin to save to Firestore.';
+            msgEl.innerText = 'Drive Link saved.';
+            // msgEl.innerText = 'Saved locally (Firestore permission denied). Sign in as admin to save to Firestore.';
             document.getElementById('phTitle').value=''; document.getElementById('phLink').value='';
             loadPhotos();
           }else{
@@ -480,4 +481,5 @@
 
     // Expose some helpers for debugging
     window._manan = { loadLeaders, loadMembers, loadEvents, loadPhotos, initFullCalendar, fcEvents };
+
 
