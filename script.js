@@ -243,22 +243,58 @@
       });
     });
 
-    openAddEvent.addEventListener('click',()=>{
-      adminContent.innerHTML = `
-        <h4>Add Event</h4>
-        <label>Title</label><input id='evTitle'>
-        <label>Description</label><textarea id='evDesc'></textarea>
-        <label>Date & Time (YYYY-MM-DD HH:MM)</label><input id='evWhen' placeholder='2025-11-25 18:00'>
-        <label>Venue</label><input id='evVenue'>
-        <div style='margin-top:8px'><button id='saveEvent' class='btn'>Save Event</button></div>
-      `;
-      document.getElementById('saveEvent').addEventListener('click',async()=>{
-        const title=document.getElementById('evTitle').value; const desc=document.getElementById('evDesc').value; const when=document.getElementById('evWhen').value; const venue=document.getElementById('evVenue').value;
-        if(!title||!when){alert('Provide title and date/time');return}
-        await addDoc(collection(db,'events'),{title,desc,when,venue,createdAt:new Date().toISOString()});
-        alert('Event saved'); loadEvents();
+    openAddEvent.addEventListener('click', () => {
+    adminContent.innerHTML = `
+      <h4>Add Event</h4>
+
+      <label>Title</label>
+      <input id="evTitle">
+
+      <label>Description</label>
+      <textarea id="evDesc"></textarea>
+
+      <label>Date & Time</label>
+      <input id="evWhen" type="datetime-local">
+
+      <label>Venue</label>
+      <input id="evVenue">
+
+      <div style="margin-top:8px">
+        <button id="saveEvent" class="btn">Save Event</button>
+      </div>
+    `;
+
+    document.getElementById('saveEvent').addEventListener('click', async () => {
+      const title = document.getElementById('evTitle').value.trim();
+      const desc  = document.getElementById('evDesc').value.trim();
+      const when  = document.getElementById('evWhen').value;
+      const venue = document.getElementById('evVenue').value.trim();
+
+      if (!title || !when) {
+        alert('Provide title and date/time');
+        return;
+      }
+
+      // ✅ Convert datetime-local → ISO (FullCalendar SAFE)
+      const startDate = new Date(when);
+      if (isNaN(startDate.getTime())) {
+        alert('Invalid date');
+        return;
+      }
+
+      await addDoc(collection(db, 'events'), {
+        title,
+        desc,
+        venue,
+        when: startDate.toISOString(),   // ✅ IMPORTANT
+        createdAt: new Date().toISOString()
       });
+
+      alert('Event saved');
+      loadEvents();
     });
+  });
+
 
     // Improved Add Photo: convert Drive share->direct link, validate and fallback to localStorage if Firestore denies
     openAddPhoto.addEventListener('click',()=>{
@@ -358,47 +394,67 @@
     }
 
     // Load events and populate both list & FullCalendar
+    // Load events and populate both list & FullCalendar
     async function loadEvents(){
-      eventsList.innerHTML=''; fcEvents = []; // reset
-      try{
+      eventsList.innerHTML = '';
+      fcEvents = [];
+
+      try {
         const evCol = collection(db,'events');
         const snap = await getDocs(evCol);
-        if(snap.empty){eventsList.innerText='No events scheduled.'}
-        const eventsArr = [];
-        snap.forEach(s=>{const d=s.data(); eventsArr.push({...d,id:s.id})});
-        eventsArr.sort((a,b)=>new Date(a.when)-new Date(b.when));
 
-        // Build plain list (Removed "Add to Google Calendar" button as requested)
-        eventsArr.forEach(e=>{
-          const el = document.createElement('div'); el.className='card';
-          el.innerHTML = `<strong>${e.title}</strong>
-            <div style='color:var(--muted)'>${e.when} | ${e.venue || ''}</div>
-            <div style='margin-top:6px'>${e.desc || ''}</div>`;
+        if (snap.empty) {
+          eventsList.innerText = 'No events scheduled.';
+          return;
+        }
+
+        const eventsArr = [];
+        snap.forEach(docSnap => {
+          const d = docSnap.data();
+          eventsArr.push({ ...d, id: docSnap.id });
+        });
+
+        // Sort by date
+        eventsArr.sort((a,b) => new Date(a.when) - new Date(b.when));
+
+        eventsArr.forEach(e => {
+          // 📋 Event list
+          const el = document.createElement('div');
+          el.className = 'card';
+          el.innerHTML = `
+            <strong>${e.title}</strong>
+            <div style="color:var(--muted)">
+              ${new Date(e.when).toLocaleString()} | ${e.venue || ''}
+            </div>
+            <div style="margin-top:6px">${e.desc || ''}</div>
+          `;
           eventsList.appendChild(el);
 
-          // prepare for FullCalendar
-          let startISO = e.when ? e.when.replace(' ', 'T') : null;
+          // 📅 FullCalendar event
           fcEvents.push({
             id: e.id,
             title: e.title,
-            start: startISO,
-            extendedProps: { description: e.desc || '', venue: e.venue || '' }
+            start: e.when,   // ✅ ISO string (best)
+            allDay: false,
+            extendedProps: {
+              description: e.desc || '',
+              venue: e.venue || ''
+            }
           });
         });
 
-        // Render into FullCalendar (if initialized)
-        if(fcCalendar){
+        if (fcCalendar) {
           fcCalendar.removeAllEvents();
-          fcEvents.forEach(ev => fcCalendar.addEvent(ev));
+          fcCalendar.addEventSource(fcEvents);
         } else {
-          initFullCalendar(); // initialize if not yet
+          initFullCalendar();
         }
 
-        // Also show optional Google Calendar embed (public calendar id)
-        renderGoogleCalendarEmbed();
-
-      }catch(e){console.error(e)}
+      } catch (e) {
+        console.error('loadEvents error:', e);
+      }
     }
+
 
     // Photos: load from Firestore and localStorage fallback
     async function loadPhotos(){
@@ -437,26 +493,35 @@
 
     function initFullCalendar(){
       if(fcCalendar) return;
-      try{
-        const Calendar = window.FullCalendar && window.FullCalendar.Calendar;
-        if(!Calendar) return console.warn('FullCalendar not loaded yet');
 
-        fcCalendar = new Calendar(fcCalendarEl, {
-          initialView: 'dayGridMonth',
-          headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listWeek' },
-          events: fcEvents,
-          height: 600,
-          eventDidMount: function(info){
-            info.el.style.cursor = 'pointer';
-          },
-          eventClick: function(info){
-            const ev = info.event;
-            alert(ev.title + '\n' + (ev.extendedProps.description || '') + '\n' + (ev.extendedProps.venue || ''));
-          }
-        });
-        fcCalendar.render();
-      }catch(e){console.error('initFullCalendar',e)}
+      const Calendar = window.FullCalendar && window.FullCalendar.Calendar;
+      if(!Calendar) {
+        console.warn('FullCalendar not loaded yet');
+        return;
+      }
+
+      fcCalendar = new Calendar(fcCalendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,listWeek'
+        },
+        events: fcEvents,
+        height: 600,
+        eventClick: function(info){
+          const ev = info.event;
+          alert(
+            ev.title + '\n' +
+            (ev.extendedProps.description || '') + '\n' +
+            (ev.extendedProps.venue || '')
+          );
+        }
+      });
+
+      fcCalendar.render();
     }
+
 
     // Optional: Public Google Calendar embed (provide calendar id here)
     const publicCalendarId = ''; // if you have a public calendar ID put it here
@@ -481,5 +546,6 @@
 
     // Expose some helpers for debugging
     window._manan = { loadLeaders, loadMembers, loadEvents, loadPhotos, initFullCalendar, fcEvents };
+
 
 
