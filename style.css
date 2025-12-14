@@ -212,3 +212,35 @@ footer{
 }
 
 
+.joint-sec-box{
+  background:white;
+  padding:20px;
+  border-radius:14px;
+  border:1px solid #e2e8f0;
+  box-shadow:0 4px 18px rgba(0,0,0,0.08);
+  height: fit-content;
+}
+
+.joint-sec-box h2{
+  margin-top:0;
+}
+
+.joint-sec{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:16px;
+}
+
+.joint-sec img{
+  width:70px;
+  height:70px;
+  object-fit:cover;
+  border-radius:10px;
+  border:1px solid #ddd;
+}
+
+.joint-sec p{
+  margin:0;
+  font-weight:600;
+}
