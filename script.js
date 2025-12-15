@@ -174,7 +174,7 @@
               allAdmins.forEach(d=>{const data=d.data(); if(data.email && data.email.toLowerCase()===user.email.toLowerCase()) isAdmin=true});
             }
           }catch(e){console.error('admin check',e)}
-          authBtn.innerText = 'Admin Pannel';
+          authBtn.innerText = 'Signed in as '+(user.displayName||user.email);
           logoutBtn.style.display = 'inline-block';
           if(isAdmin) showAdminPanel();
         }else{
@@ -546,6 +546,7 @@
 
     // Expose some helpers for debugging
     window._manan = { loadLeaders, loadMembers, loadEvents, loadPhotos, initFullCalendar, fcEvents };
+
 
 
 
