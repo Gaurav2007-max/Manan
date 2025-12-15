@@ -244,3 +244,27 @@ footer{
   margin:0;
   font-weight:600;
 }
+/* Wrapper for Joint Sec + Session Heads */
+.leaders-wrapper{
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+/* Smaller cards */
+.joint-sec-box.small{
+  padding: 14px;
+  width: 200px;
+}
+
+/* Smaller images */
+.joint-sec-box.small .joint-sec img{
+  width: 55px;
+  height: 55px;
+}
+
+/* Slightly smaller text */
+.joint-sec-box.small p{
+  font-size: 14px;
+}
+
