@@ -155,3 +155,15 @@ footer{
   text-align:center;
   color:var(--muted);
 }
+.container{
+  max-width:1250px;
+}
+
+.joint-sec-box{
+  min-height:360px;
+}
+
+.joint-sec-box h2{
+  white-space:nowrap;
+}
+
