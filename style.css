@@ -167,3 +167,48 @@ footer{
   white-space:nowrap;
 }
 
+/* ===== AUTH PAGE ===== */
+.auth-page{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+  background:#f5f7fa;
+}
+
+.login-card{
+  width:100%;
+  max-width:420px;
+  background:white;
+  padding:28px;
+  border-radius:14px;
+  box-shadow:0 4px 18px rgba(0,0,0,0.08);
+  border:1px solid #e2e8f0;
+}
+
+.login-toggle{
+  display:flex;
+  gap:12px;
+  margin-bottom:16px;
+}
+
+.login-toggle button{
+  flex:1;
+}
+
+.login-card label{
+  font-size:14px;
+  color:var(--muted);
+  margin-top:10px;
+}
+
+.login-card input{
+  margin-bottom:12px;
+}
+
+.btn-gradient.full{
+  width:100%;
+  margin-top:10px;
+}
+
+
