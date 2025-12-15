@@ -267,4 +267,33 @@ footer{
 .joint-sec-box.small p{
   font-size: 14px;
 }
+.hero{
+  display:grid;
+  grid-template-columns:1fr 520px; /* MORE SPACE */
+  gap:28px;
+  align-items:flex-start;
+}
+.leaders-wrapper{
+  display: flex;
+  gap: 22px;
+  align-items: stretch; /* SAME HEIGHT */
+}
+
+/* Equal-sized cards */
+.joint-sec-box{
+  width: 240px;          /* SAME WIDTH */
+  padding: 20px;
+}
+
+/* Slightly bigger images */
+.joint-sec img{
+  width: 64px;
+  height: 64px;
+}
+
+/* Better text spacing */
+.joint-sec p{
+  font-size: 15px;
+}
+
 
