@@ -439,26 +439,26 @@
     async function loadEvents() {
       eventsList.innerHTML = '';
       fcEvents = [];
-    
+
       try {
         const snap = await getDocs(collection(db,'events'));
-    
+
         if (snap.empty) {
           eventsList.innerText = 'No events scheduled.';
           return;
         }
-    
+
         const now = new Date();
         const eventsArr = [];
-    
+
         snap.forEach(docSnap => {
           const d = docSnap.data();
           eventsArr.push({ ...d, id: docSnap.id });
         });
-    
+
         // 🔹 SORT ALL EVENTS (calendar needs order too)
         eventsArr.sort((a, b) => new Date(a.when) - new Date(b.when));
-    
+
         // ===============================
         // 📅 CALENDAR → ALL EVENTS
         // ===============================
@@ -474,18 +474,18 @@
             }
           });
         });
-    
+
         // ===============================
         // 📋 LIST → ONLY UPCOMING EVENTS
         // ===============================
         const upcoming = eventsArr.filter(
           e => new Date(e.when) >= now
         );
-    
+
         if (upcoming.length === 0) {
           eventsList.innerHTML = `<p style="opacity:.7">No upcoming events.</p>`;
         }
-    
+
         upcoming.forEach(e => {
           const el = document.createElement('div');
           el.className = 'card';
@@ -498,7 +498,7 @@
           `;
           eventsList.appendChild(el);
         });
-    
+
         // ===============================
         // 🔄 REFRESH CALENDAR
         // ===============================
@@ -508,7 +508,7 @@
         } else {
           initFullCalendar();
         }
-    
+
       } catch (e) {
         console.error('loadEvents error:', e);
       }
@@ -606,8 +606,6 @@
 
     // Expose some helpers for debugging
     window._manan = { loadLeaders, loadMembers, loadEvents, loadPhotos, initFullCalendar, fcEvents };
-
-
 
 
 
