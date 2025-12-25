@@ -5,6 +5,7 @@ import {
   getAuth,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
   signOut
 } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
@@ -39,6 +40,9 @@ const liEmail = document.getElementById("liEmail");
 const liPass = document.getElementById("liPass");
 const liSignIn = document.getElementById("liSignIn");
 const liMsg = document.getElementById("liMsg");
+
+const forgotPassBtn = document.getElementById("forgotPass");
+
 
 const suName = document.getElementById("suName");
 const suEmail = document.getElementById("suEmail");
@@ -126,6 +130,26 @@ liSignIn.addEventListener("click", async () => {
 });
 
 
+// -------- FORGOT PASSWORD --------
+if (forgotPassBtn) {
+  forgotPassBtn.addEventListener("click", async () => {
+    liMsg.innerText = "";
+    const email = liEmail.value.trim();
+    if (!email) {
+      liMsg.innerText = "Enter your email first.";
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, email);
+      liMsg.innerText = "Password reset email sent.";
+    } catch (e) {
+      console.error('reset password', e);
+      liMsg.innerText = e.message || 'Failed to send reset email';
+    }
+  });
+}
+
+
 
 // -------- SIGN UP --------
 if (doSignUp) {
@@ -158,9 +182,18 @@ if (doSignUp) {
       suMsg.innerText =
         "Signup request submitted. Wait for admin approval.";
 
+      // Clear form inputs after successful request
+      suName.value = '';
+      suEmail.value = '';
+      suPass.value = '';
+      suYear.value = '';
+      suRoll.value = '';
+      suBranch.value = '';
+
     } catch (e) {
       console.error(e);
       suMsg.innerText = e.message;
     }
   });
 }
+
