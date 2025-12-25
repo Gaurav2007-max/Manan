@@ -17,6 +17,8 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const GITHUB_TOKEN = "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";
+
 
     // UI refs
     const modal = document.getElementById('modal');
@@ -160,39 +162,28 @@
 
     // Auth state & admin detection
     import('https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js').then(({onAuthStateChanged})=>{
-      onAuthStateChanged(auth, async user => {
+      onAuthStateChanged(auth, async user=>{
         currentUser = user;
-
-        if (user) {
-          isAdmin = false;
-
-          const adminSnap = await getDoc(doc(db,'admins',user.uid));
-          if (adminSnap.exists()) {
-            isAdmin = true;
-          }
-
-          authBtn.innerText = 'Signed in as ' + user.email;
+        if(user){
+          try{
+            const q = doc(db,'admins',user.uid);
+            const byUid = await getDoc(q);
+            if(byUid.exists()) isAdmin = true;
+            else{
+              const adminsCol = collection(db,'admins');
+              const allAdmins = await getDocs(adminsCol);
+              isAdmin = false;
+              allAdmins.forEach(d=>{const data=d.data(); if(data.email && data.email.toLowerCase()===user.email.toLowerCase()) isAdmin=true});
+            }
+          }catch(e){console.error('admin check',e)}
+          authBtn.innerText = 'Signed in as '+(user.displayName||user.email);
           logoutBtn.style.display = 'inline-block';
-
-          // ✅ RELOAD UI AFTER ADMIN CHECK
-          loadMembers();
-          loadEvents();
-          loadPhotos();
-
-          if (isAdmin) showAdminPanel();
-        } else {
-          isAdmin = false;
-          currentUser = null;
-          authBtn.innerText = 'Login / Signup';
+          if(isAdmin) showAdminPanel();
+        }else{
+          isAdmin=false; currentUser=null; authBtn.innerText='Login / Signup'; hideAdminPanel();
           logoutBtn.style.display = 'none';
-          hideAdminPanel();
-
-          loadMembers();
-          loadEvents();
-          loadPhotos();
         }
       });
-
     });
 
     function showAdminPanel(){adminArea.style.display='block';}
@@ -435,50 +426,15 @@
       try{
         const mems = collection(db,'members');
         const snap = await getDocs(mems);
-        if(snap.empty){
-          membersGrid.innerText='No members yet.';
-          return;
-        }
-
+        if(snap.empty){membersGrid.innerText='No members yet.'}
         snap.forEach(docSnap=>{
           const m = docSnap.data();
-          const cel = document.createElement('div');
-          cel.className='card';
-
-          cel.innerHTML = `
-            <div class='member-card'>
-              <div class='avatar'>
-                ${(m.name||'').split(' ').map(x=>x[0]).slice(0,2).join('')}
-              </div>
-              <div style='flex:1'>
-                <strong>${m.name}</strong>
-                <div style='font-size:13px;color:var(--muted)'>
-                  ${m.branch} | ${m.year} | ${m.roll || ''}
-                </div>
-              </div>
-            </div>
-          `;
-
-          // 🔴 DELETE BUTTON (ADMIN ONLY)
-          if (isAdmin) {
-            const delBtn = document.createElement('button');
-            delBtn.className = 'btn danger';
-            delBtn.innerText = 'Delete';
-
-            delBtn.onclick = async () => {
-              if (!confirm(`Delete member ${m.name}?`)) return;
-              await deleteDoc(doc(db, 'members', docSnap.id));
-              loadMembers();
-            };
-
-            cel.appendChild(delBtn);
-          }
-
+          const cel = document.createElement('div'); cel.className='card';
+          cel.innerHTML = `<div class='member-card'><div class='avatar'>${(m.name||'').split(' ').map(x=>x[0]).slice(0,2).join('')}</div><div style='flex:1'><strong>${m.name}</strong><div style='font-size:13px;color:var(--muted)'>${m.branch} | ${m.year} | ${m.roll || ''}</div></div></div>`;
           membersGrid.appendChild(cel);
         });
       }catch(e){console.error(e)}
     }
-
 
     // Load events and populate both list & FullCalendar
     // Load events and populate both list & FullCalendar
@@ -543,19 +499,6 @@
             ${e.desc ? `<div style="margin-top:6px">${e.desc}</div>` : ''}
           `;
           eventsList.appendChild(el);
-          if (isAdmin) {
-            const delBtn = document.createElement('button');
-            delBtn.className = 'btn danger';
-            delBtn.innerText = 'Delete';
-
-            delBtn.onclick = async () => {
-              if (!confirm(`Delete event "${e.title}"?`)) return;
-              await deleteDoc(doc(db, 'events', e.id));
-              loadEvents();
-            };
-
-            el.appendChild(delBtn);
-          }
         });
 
         // ===============================
@@ -583,39 +526,13 @@
         const phCol = collection(db,'photos');
         const snap = await getDocs(phCol);
         const firestorePhotos = [];
-        snap.forEach(s =>
-          firestorePhotos.push({ id: s.id, ...s.data() })
-        );
+        snap.forEach(s => firestorePhotos.push(s.data()));
         const combined = [...firestorePhotos, ...local]; // local appended after
         if(combined.length === 0){galleryGrid.innerText='No photos yet.'}
         combined.forEach(p=>{
           const el=document.createElement('a'); el.href=p.link; el.target='_blank'; el.className='photo';
           el.innerHTML=`<div style="height:100px;display:flex;align-items:center;justify-content:center;background: #ffffff;border: 1px solid #e2e8f0;border-radius:8px">${p.title || 'Photo'}</div>`;
           galleryGrid.appendChild(el)
-          const wrap = document.createElement('div');
-          wrap.style.display = 'flex';
-          wrap.style.flexDirection = 'column';
-          wrap.style.gap = '6px';
-
-          wrap.appendChild(el);
-
-          // 🔴 DELETE BUTTON (ADMIN ONLY)
-          if (isAdmin && p.id) {
-            const delBtn = document.createElement('button');
-            delBtn.className = 'btn danger';
-            delBtn.innerText = 'Delete';
-
-            delBtn.onclick = async () => {
-              if (!confirm('Delete this drive link?')) return;
-              await deleteDoc(doc(db, 'photos', p.id));
-              loadPhotos();
-            };
-
-            wrap.appendChild(delBtn);
-          }
-
-          galleryGrid.appendChild(wrap);
-
         });
       }catch(e){
         console.warn('Photos load failed - falling back to local only', e);
@@ -692,7 +609,98 @@
     // Expose some helpers for debugging
     window._manan = { loadLeaders, loadMembers, loadEvents, loadPhotos, initFullCalendar, fcEvents };
 
+// ================= AI HELPER (GitHub Models) =================
 
+const aiInput = document.getElementById('aiInput');
+const aiSend = document.getElementById('aiSend');
+const aiMessages = document.getElementById('aiMessages');
+
+function addMsg(text, who = 'bot') {
+  const div = document.createElement('div');
+  div.className = `ai-msg ${who}`;
+  div.innerText = text;
+  aiMessages.appendChild(div);
+  aiMessages.scrollTop = aiMessages.scrollHeight;
+}
+
+async function askAI(question) {
+  addMsg(question, 'user');
+  addMsg('Thinking...', 'bot');
+
+  try {
+    const res = await fetch(
+      'https://models.github.ai/inference/chat/completions',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${GITHUB_TOKEN}`
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+              {
+                role: 'system',
+                content: `
+              You are Manan AI Helper, a website assistant for Manan Technical Club.
+
+              IMPORTANT RULES:
+              - Do NOT say you cannot be trained
+              - Do NOT mention training data, model cutoff, or OpenAI policies
+              - You CAN accept information provided by the user during the chat
+              - When the user gives new information, acknowledge it and use it in later replies
+
+              You are not being permanently trained.
+              You are temporarily using information shared in this conversation.
+
+              Manan background:
+              Manan is the technical club of JC Bose University of Science and Technology.
+              Joining Manan requires clearing auditions followed by a personal interview.
+
+              If the user asks:
+              "Can I train you?" or "Can I give you data?"
+              Reply:
+              "You can share information here, and I’ll use it to answer better during this conversation."
+              `
+              },
+            { role: 'user', content: question }
+          ],
+          temperature: 0.4,
+          max_tokens: 200
+        })
+      }
+    );
+
+    const data = await res.json();
+    aiMessages.lastChild.remove(); // remove "Thinking..."
+
+    if (!data.choices) {
+      console.error("GitHub Models error:", data);
+      addMsg("AI error. Check console.", "bot");
+      return;
+    }
+
+    addMsg(data.choices[0].message.content, 'bot');
+  } catch (e) {
+    aiMessages.lastChild.remove();
+    console.error(e);
+    addMsg("AI failed. Try again later.", "bot");
+  }
+}
+
+
+aiSend.addEventListener('click', () => {
+  if (aiInput.value.trim()) {
+    askAI(aiInput.value.trim());
+    aiInput.value = '';
+  }
+});
+
+aiInput.addEventListener('keypress', e => {
+  if (e.key === 'Enter') aiSend.click();
+});
+
+// ============================================================
 
 
 
