@@ -64,10 +64,14 @@
       <input id="liEmail" type="email" />
 
       <label>Password</label>
-      <input id="liPass" type="password" />
+      <div style="display:flex;align-items:center;gap:8px">
+        <input id="liPass" type="password" />
+        <button id="liTogglePass" class="btn" type="button" aria-label="Toggle password visibility">Show</button>
+      </div>
 
       <div class="login-toggle" style="margin-top:12px">
         <button id="liSignIn" class="btn-gradient" style="flex:1">Sign in</button>
+        <button id="forgotPass" class="btn" style="margin-left:8px">Forgot password</button>
       </div>
 
       <div id="liMsg"></div>
@@ -111,6 +115,8 @@
     const signupForm = document.getElementById("signupForm");
     const btnLogin = document.getElementById("showLogin");
     const btnSignup = document.getElementById("showSignup");
+    const liPass = document.getElementById("liPass");
+    const liTogglePass = document.getElementById("liTogglePass");
 
     btnSignup.addEventListener("click", () => {
       loginForm.style.display = "none";
@@ -121,6 +127,19 @@
       signupForm.style.display = "none";
       loginForm.style.display = "block";
     });
+
+    // Show / hide password for login
+    if (liTogglePass && liPass) {
+      liTogglePass.addEventListener('click', () => {
+        if (liPass.type === 'password') {
+          liPass.type = 'text';
+          liTogglePass.innerText = 'Hide';
+        } else {
+          liPass.type = 'password';
+          liTogglePass.innerText = 'Show';
+        }
+      });
+    }
   </script>
 
 </body>
