@@ -546,4 +546,71 @@ nav .btn:hover {
   }
 }
 
+/* ===== AI HELPER ===== */
+.ai-helper {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 320px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  font-family: system-ui;
+  z-index: 9999;
+}
+
+.ai-header {
+  background: #4f46e5;
+  color: white;
+  padding: 10px;
+  border-radius: 12px 12px 0 0;
+  font-weight: 600;
+  text-align: center;
+}
+
+.ai-messages {
+  padding: 10px;
+  height: 220px;
+  overflow-y: auto;
+  font-size: 14px;
+}
+
+.ai-msg {
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  max-width: 90%;
+}
+
+.ai-msg.bot {
+  background: #f1f5f9;
+}
+
+.ai-msg.user {
+  background: #e0e7ff;
+  align-self: flex-end;
+}
+
+.ai-input {
+  display: flex;
+  border-top: 1px solid #e5e7eb;
+}
+
+.ai-input input {
+  flex: 1;
+  border: none;
+  padding: 10px;
+  outline: none;
+}
+
+.ai-input button {
+  border: none;
+  background: #4f46e5;
+  color: white;
+  padding: 0 14px;
+  cursor: pointer;
+}
+/* ===================== */
 
