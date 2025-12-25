@@ -436,46 +436,37 @@
 
     // Load events and populate both list & FullCalendar
     // Load events and populate both list & FullCalendar
-    async function loadEvents(){
+    async function loadEvents() {
       eventsList.innerHTML = '';
       fcEvents = [];
-
+    
       try {
-        const evCol = collection(db,'events');
-        const snap = await getDocs(evCol);
-
+        const snap = await getDocs(collection(db,'events'));
+    
         if (snap.empty) {
           eventsList.innerText = 'No events scheduled.';
           return;
         }
-
+    
+        const now = new Date();
         const eventsArr = [];
+    
         snap.forEach(docSnap => {
           const d = docSnap.data();
           eventsArr.push({ ...d, id: docSnap.id });
         });
-
-        // Sort by date
-        eventsArr.sort((a,b) => new Date(a.when) - new Date(b.when));
-
+    
+        // 🔹 SORT ALL EVENTS (calendar needs order too)
+        eventsArr.sort((a, b) => new Date(a.when) - new Date(b.when));
+    
+        // ===============================
+        // 📅 CALENDAR → ALL EVENTS
+        // ===============================
         eventsArr.forEach(e => {
-          // 📋 Event list
-          const el = document.createElement('div');
-          el.className = 'card';
-          el.innerHTML = `
-            <strong>${e.title}</strong>
-            <div style="color:var(--muted)">
-              ${new Date(e.when).toLocaleString()} | ${e.venue || ''}
-            </div>
-            <div style="margin-top:6px">${e.desc || ''}</div>
-          `;
-          eventsList.appendChild(el);
-
-          // 📅 FullCalendar event
           fcEvents.push({
             id: e.id,
             title: e.title,
-            start: e.when,   // ✅ ISO string (best)
+            start: e.when,
             allDay: false,
             extendedProps: {
               description: e.desc || '',
@@ -483,18 +474,46 @@
             }
           });
         });
-
+    
+        // ===============================
+        // 📋 LIST → ONLY UPCOMING EVENTS
+        // ===============================
+        const upcoming = eventsArr.filter(
+          e => new Date(e.when) >= now
+        );
+    
+        if (upcoming.length === 0) {
+          eventsList.innerHTML = `<p style="opacity:.7">No upcoming events.</p>`;
+        }
+    
+        upcoming.forEach(e => {
+          const el = document.createElement('div');
+          el.className = 'card';
+          el.innerHTML = `
+            <strong>${e.title}</strong>
+            <div style="color:var(--muted)">
+              ${new Date(e.when).toLocaleString()} | ${e.venue || ''}
+            </div>
+            ${e.desc ? `<div style="margin-top:6px">${e.desc}</div>` : ''}
+          `;
+          eventsList.appendChild(el);
+        });
+    
+        // ===============================
+        // 🔄 REFRESH CALENDAR
+        // ===============================
         if (fcCalendar) {
           fcCalendar.removeAllEvents();
           fcCalendar.addEventSource(fcEvents);
         } else {
           initFullCalendar();
         }
-
+    
       } catch (e) {
         console.error('loadEvents error:', e);
       }
     }
+
 
 
     // Photos: load from Firestore and localStorage fallback
@@ -587,6 +606,7 @@
 
     // Expose some helpers for debugging
     window._manan = { loadLeaders, loadMembers, loadEvents, loadPhotos, initFullCalendar, fcEvents };
+
 
 
 
