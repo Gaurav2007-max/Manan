@@ -17,7 +17,6 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    const GITHUB_TOKEN = "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";
 
 
     // UI refs
@@ -623,47 +622,39 @@ function addMsg(text, who = 'bot') {
   aiMessages.scrollTop = aiMessages.scrollHeight;
 }
 
-async function askAI(question) {
-  addMsg(question, 'user');
-  addMsg('Thinking...', 'bot');
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
   try {
-    const res = await fetch(
+    const response = await fetch(
       'https://models.github.ai/inference/chat/completions',
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${GITHUB_TOKEN}`
+          'Authorization': `Bearer ${process.env.GH_MODELS_TOKEN}`
         },
         body: JSON.stringify({
           model: 'gpt-4o-mini',
           messages: [
-              {
-                role: 'system',
-                content: `
-              You are Manan AI Helper, a website assistant for Manan Technical Club.
+            {
+              role: 'system',
+              content: `
+You are Manan AI Helper, the official assistant for Manan Technical Club.
 
-              IMPORTANT RULES:
-              - Do NOT say you cannot be trained
-              - Do NOT mention training data, model cutoff, or OpenAI policies
-              - You CAN accept information provided by the user during the chat
-              - When the user gives new information, acknowledge it and use it in later replies
+Manan info:
+- Technical club of JC Bose University of Science and Technology
+- Joining requires auditions + personal interview
 
-              You are not being permanently trained.
-              You are temporarily using information shared in this conversation.
-
-              Manan background:
-              Manan is the technical club of JC Bose University of Science and Technology.
-              Joining Manan requires clearing auditions followed by a personal interview.
-
-              If the user asks:
-              "Can I train you?" or "Can I give you data?"
-              Reply:
-              "You can share information here, and I’ll use it to answer better during this conversation."
+Rules:
+- Never say you cannot be trained
+- Accept info shared during conversation
+- Use shared info temporarily
               `
-              },
-            { role: 'user', content: question }
+            },
+            { role: 'user', content: req.body.question }
           ],
           temperature: 0.4,
           max_tokens: 200
@@ -671,36 +662,13 @@ async function askAI(question) {
       }
     );
 
-    const data = await res.json();
-    aiMessages.lastChild.remove(); // remove "Thinking..."
-
-    if (!data.choices) {
-      console.error("GitHub Models error:", data);
-      addMsg("AI error. Check console.", "bot");
-      return;
-    }
-
-    addMsg(data.choices[0].message.content, 'bot');
-  } catch (e) {
-    aiMessages.lastChild.remove();
-    console.error(e);
-    addMsg("AI failed. Try again later.", "bot");
+    const data = await response.json();
+    res.status(200).json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'AI failed', details: err.message });
   }
 }
 
-
-aiSend.addEventListener('click', () => {
-  if (aiInput.value.trim()) {
-    askAI(aiInput.value.trim());
-    aiInput.value = '';
-  }
-});
-
-aiInput.addEventListener('keypress', e => {
-  if (e.key === 'Enter') aiSend.click();
-});
-
-// ============================================================
 
 
 
