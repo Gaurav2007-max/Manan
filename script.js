@@ -1,9 +1,8 @@
 // ---- FIREBASE ----
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
-    import { getFirestore, collection, addDoc, setDoc, doc, getDoc, getDocs, query, where, onSnapshot, updateDoc, deleteDoc, orderBy } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
+    import { getFirestore, collection, addDoc, setDoc, doc, getDoc, getDocs, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
 
-    // Replace with your firebase config
     const firebaseConfig = {
         apiKey: "AIzaSyDJtmkCoy3cgn-0RKEyvxqbxEycvl29gZU",
         authDomain: "manan-a5cac.firebaseapp.com",
@@ -64,7 +63,6 @@
     // Show modal
     authBtn.addEventListener('click', () => {
         modal.classList.add('show');
-
         if (!currentUser) {
             document.getElementById('panelTitle').innerText = 'Authentication';
             authArea.style.display = 'block';
@@ -691,7 +689,6 @@
 
     // Expose some helpers for debugging
     window._manan = { loadLeaders, loadMembers, loadEvents, loadPhotos, initFullCalendar, fcEvents };
-
 
 
 
