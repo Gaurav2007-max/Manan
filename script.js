@@ -235,11 +235,41 @@
         <label>Branch</label><input id='admBranch'>
         <div style='margin-top:8px'><button id='saveMember' class='btn'>Save</button></div>
       `;
-      document.getElementById('saveMember').addEventListener('click',async()=>{
-        const name=document.getElementById('admName').value; const email=document.getElementById('admEmail').value; const year=document.getElementById('admYear').value; const roll=document.getElementById('admRoll').value; const branch=document.getElementById('admBranch').value;
+      document.getElementById('saveMember').addEventListener('click', async () => {
+        const nameEl = document.getElementById('admName');
+        const emailEl = document.getElementById('admEmail');
+        const yearEl = document.getElementById('admYear');
+        const rollEl = document.getElementById('admRoll');
+        const branchEl = document.getElementById('admBranch');
+
+        const name = nameEl.value;
+        const email = emailEl.value;
+        const year = yearEl.value;
+        const roll = rollEl.value;
+        const branch = branchEl.value;
+
         const id = email.split('@')[0] + '_' + roll;
-        await setDoc(doc(db,'members',id),{uid:id,name,email,year,roll,branch,addedBy:currentUser ? currentUser.email : 'admin',addedAt:new Date().toISOString()});
-        alert('Member added'); loadMembers();
+
+        await setDoc(doc(db, 'members', id), {
+          uid: id,
+          name,
+          email,
+          year,
+          roll,
+          branch,
+          addedBy: currentUser ? currentUser.email : 'admin',
+          addedAt: new Date().toISOString()
+        });
+
+        // ✅ CLEAR FORM
+        nameEl.value = '';
+        emailEl.value = '';
+        yearEl.value = '';
+        rollEl.value = '';
+        branchEl.value = '';
+
+        alert('Member added');
+        loadMembers();
       });
     });
 
@@ -265,17 +295,21 @@
     `;
 
     document.getElementById('saveEvent').addEventListener('click', async () => {
-      const title = document.getElementById('evTitle').value.trim();
-      const desc  = document.getElementById('evDesc').value.trim();
-      const when  = document.getElementById('evWhen').value;
-      const venue = document.getElementById('evVenue').value.trim();
+      const titleEl = document.getElementById('evTitle');
+      const descEl  = document.getElementById('evDesc');
+      const whenEl  = document.getElementById('evWhen');
+      const venueEl = document.getElementById('evVenue');
+
+      const title = titleEl.value.trim();
+      const desc  = descEl.value.trim();
+      const when  = whenEl.value;
+      const venue = venueEl.value.trim();
 
       if (!title || !when) {
         alert('Provide title and date/time');
         return;
       }
 
-      // ✅ Convert datetime-local → ISO (FullCalendar SAFE)
       const startDate = new Date(when);
       if (isNaN(startDate.getTime())) {
         alert('Invalid date');
@@ -286,13 +320,20 @@
         title,
         desc,
         venue,
-        when: startDate.toISOString(),   // ✅ IMPORTANT
+        when: startDate.toISOString(),
         createdAt: new Date().toISOString()
       });
+
+      // ✅ CLEAR FORM
+      titleEl.value = '';
+      descEl.value = '';
+      whenEl.value = '';
+      venueEl.value = '';
 
       alert('Event saved');
       loadEvents();
     });
+
   });
 
 
@@ -546,6 +587,7 @@
 
     // Expose some helpers for debugging
     window._manan = { loadLeaders, loadMembers, loadEvents, loadPhotos, initFullCalendar, fcEvents };
+
 
 
 
