@@ -160,28 +160,39 @@
 
     // Auth state & admin detection
     import('https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js').then(({onAuthStateChanged})=>{
-      onAuthStateChanged(auth, async user=>{
+      onAuthStateChanged(auth, async user => {
         currentUser = user;
-        if(user){
-          try{
-            const q = doc(db,'admins',user.uid);
-            const byUid = await getDoc(q);
-            if(byUid.exists()) isAdmin = true;
-            else{
-              const adminsCol = collection(db,'admins');
-              const allAdmins = await getDocs(adminsCol);
-              isAdmin = false;
-              allAdmins.forEach(d=>{const data=d.data(); if(data.email && data.email.toLowerCase()===user.email.toLowerCase()) isAdmin=true});
-            }
-          }catch(e){console.error('admin check',e)}
-          authBtn.innerText = 'Signed in as '+(user.displayName||user.email);
+
+        if (user) {
+          isAdmin = false;
+
+          const adminSnap = await getDoc(doc(db,'admins',user.uid));
+          if (adminSnap.exists()) {
+            isAdmin = true;
+          }
+
+          authBtn.innerText = 'Signed in as ' + user.email;
           logoutBtn.style.display = 'inline-block';
-          if(isAdmin) showAdminPanel();
-        }else{
-          isAdmin=false; currentUser=null; authBtn.innerText='Login / Signup'; hideAdminPanel();
+
+          // ✅ RELOAD UI AFTER ADMIN CHECK
+          loadMembers();
+          loadEvents();
+          loadPhotos();
+
+          if (isAdmin) showAdminPanel();
+        } else {
+          isAdmin = false;
+          currentUser = null;
+          authBtn.innerText = 'Login / Signup';
           logoutBtn.style.display = 'none';
+          hideAdminPanel();
+
+          loadMembers();
+          loadEvents();
+          loadPhotos();
         }
       });
+
     });
 
     function showAdminPanel(){adminArea.style.display='block';}
@@ -424,15 +435,50 @@
       try{
         const mems = collection(db,'members');
         const snap = await getDocs(mems);
-        if(snap.empty){membersGrid.innerText='No members yet.'}
+        if(snap.empty){
+          membersGrid.innerText='No members yet.';
+          return;
+        }
+
         snap.forEach(docSnap=>{
           const m = docSnap.data();
-          const cel = document.createElement('div'); cel.className='card';
-          cel.innerHTML = `<div class='member-card'><div class='avatar'>${(m.name||'').split(' ').map(x=>x[0]).slice(0,2).join('')}</div><div style='flex:1'><strong>${m.name}</strong><div style='font-size:13px;color:var(--muted)'>${m.branch} | ${m.year} | ${m.roll || ''}</div></div></div>`;
+          const cel = document.createElement('div');
+          cel.className='card';
+
+          cel.innerHTML = `
+            <div class='member-card'>
+              <div class='avatar'>
+                ${(m.name||'').split(' ').map(x=>x[0]).slice(0,2).join('')}
+              </div>
+              <div style='flex:1'>
+                <strong>${m.name}</strong>
+                <div style='font-size:13px;color:var(--muted)'>
+                  ${m.branch} | ${m.year} | ${m.roll || ''}
+                </div>
+              </div>
+            </div>
+          `;
+
+          // 🔴 DELETE BUTTON (ADMIN ONLY)
+          if (isAdmin) {
+            const delBtn = document.createElement('button');
+            delBtn.className = 'btn danger';
+            delBtn.innerText = 'Delete';
+
+            delBtn.onclick = async () => {
+              if (!confirm(`Delete member ${m.name}?`)) return;
+              await deleteDoc(doc(db, 'members', docSnap.id));
+              loadMembers();
+            };
+
+            cel.appendChild(delBtn);
+          }
+
           membersGrid.appendChild(cel);
         });
       }catch(e){console.error(e)}
     }
+
 
     // Load events and populate both list & FullCalendar
     // Load events and populate both list & FullCalendar
@@ -497,6 +543,19 @@
             ${e.desc ? `<div style="margin-top:6px">${e.desc}</div>` : ''}
           `;
           eventsList.appendChild(el);
+          if (isAdmin) {
+            const delBtn = document.createElement('button');
+            delBtn.className = 'btn danger';
+            delBtn.innerText = 'Delete';
+
+            delBtn.onclick = async () => {
+              if (!confirm(`Delete event "${e.title}"?`)) return;
+              await deleteDoc(doc(db, 'events', e.id));
+              loadEvents();
+            };
+
+            el.appendChild(delBtn);
+          }
         });
 
         // ===============================
@@ -524,13 +583,39 @@
         const phCol = collection(db,'photos');
         const snap = await getDocs(phCol);
         const firestorePhotos = [];
-        snap.forEach(s => firestorePhotos.push(s.data()));
+        snap.forEach(s =>
+          firestorePhotos.push({ id: s.id, ...s.data() })
+        );
         const combined = [...firestorePhotos, ...local]; // local appended after
         if(combined.length === 0){galleryGrid.innerText='No photos yet.'}
         combined.forEach(p=>{
           const el=document.createElement('a'); el.href=p.link; el.target='_blank'; el.className='photo';
           el.innerHTML=`<div style="height:100px;display:flex;align-items:center;justify-content:center;background: #ffffff;border: 1px solid #e2e8f0;border-radius:8px">${p.title || 'Photo'}</div>`;
           galleryGrid.appendChild(el)
+          const wrap = document.createElement('div');
+          wrap.style.display = 'flex';
+          wrap.style.flexDirection = 'column';
+          wrap.style.gap = '6px';
+
+          wrap.appendChild(el);
+
+          // 🔴 DELETE BUTTON (ADMIN ONLY)
+          if (isAdmin && p.id) {
+            const delBtn = document.createElement('button');
+            delBtn.className = 'btn danger';
+            delBtn.innerText = 'Delete';
+
+            delBtn.onclick = async () => {
+              if (!confirm('Delete this drive link?')) return;
+              await deleteDoc(doc(db, 'photos', p.id));
+              loadPhotos();
+            };
+
+            wrap.appendChild(delBtn);
+          }
+
+          galleryGrid.appendChild(wrap);
+
         });
       }catch(e){
         console.warn('Photos load failed - falling back to local only', e);
@@ -606,6 +691,7 @@
 
     // Expose some helpers for debugging
     window._manan = { loadLeaders, loadMembers, loadEvents, loadPhotos, initFullCalendar, fcEvents };
+
 
 
 
