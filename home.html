@@ -2,16 +2,14 @@
 <html lang="en">
 <head>
   <title>Manan - Technical Club</title>
-  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
     <div class="brand">
-      <div class="logo" ><h3 style="color:#4f46e5">M</h3></div>
+      <div class="logo" ><img src="photos/Mananlogo.jpg" class="logo-img"></div>
       <div>
-        <div style="font-weight:700">Manan: The Technical Club</div>
-        
+        <div style="font-weight:700">Manan: The Technosurge</div>
       </div>
     </div>
     <nav>
@@ -102,12 +100,10 @@
           <div class="joint-sec">
             <img src="photos/Photo6.png" alt="Session Head 3">
             <p>Sunny Shukla</p>
-          </div>
-        </div>
-      
+          </div>  
+        </div>  
+
       </div>
-
-
     </section>
 
 
@@ -127,8 +123,6 @@
       <!-- Visible full calendar area (FullCalendar) -->
       <div id="fcCalendar" style="margin-top:12px;background:var(--bg);padding:10px;border-radius:10px"></div>
 
-      <!-- Optional public Google Calendar embed (set publicCalendarId variable below if you have one) -->
-      <div id="googleCalendarEmbed" style="margin-top:12px"></div>
     </section>
 
     <section id="gallery" style="margin-top:22px">
@@ -137,9 +131,10 @@
     </section>
   </main>
 
-  <footer>
-    © Manan Club — Built with HTML, CSS, JavaScript & Firebase
+  <footer style="text-align:center; padding:12px 0;">
+    © Manan Club Portal — Built with HTML, CSS, JavaScript, Firebase, Thinkstack
   </footer>
+
 
   <!-- Modal for Authentication & Admin Panel -->
   <div id="modal" class="modal">
@@ -167,7 +162,7 @@
 
         <div id="signUpForm" style="display:none">
           <label>Full name</label><input id="suName" type="text">
-          <label>College email</label><input id="suEmail" type="email">
+          <label>Email</label><input id="suEmail" type="email">
           <label>Password</label><input id="suPass" type="password">
           <label>Year</label><input id="suYear" type="text" placeholder="e.g. 3rd">
           <label>Roll No</label><input id="suRoll" type="text">
@@ -197,13 +192,15 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
     <script type="module" src="script.js"></script>
   <!-- FullCalendar global bundle (non-module) to ensure window.FullCalendar is available for initFullCalendar -->
+
+  <!--  Chatbot Script -->
     <script
       chatbot_id="694df1c19d67ae27dfef4848"
       data-type="default"
       src="https://app.thinkstack.ai/bot/thinkstackai-loader.min.js"
     ></script>
-</body>
 
+</body>
 </html>
 
 
