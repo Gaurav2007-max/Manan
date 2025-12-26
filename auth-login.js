@@ -6,7 +6,8 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
-  signOut
+  signOut,
+  fetchSignInMethodsForEmail
 } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
 import {
@@ -62,11 +63,11 @@ async function isApproved(user) {
   const emailLower = user.email.toLowerCase();
 
   try {
-    // 1️⃣ Check admins by UID
+    // Check admins by UID
     const adminUID = await getDoc(doc(db, "admins", uid));
     if (adminUID.exists()) return "admin";
 
-    // 2️⃣ Check admins by EMAIL
+    // Check admins by EMAIL
     const admins = await getDocs(collection(db, "admins"));
     let isAdmin = false;
     admins.forEach(d => {
@@ -77,7 +78,7 @@ async function isApproved(user) {
     });
     if (isAdmin) return "admin";
 
-    // 3️⃣ Check members by UID
+    // Check members by UID
     const memUID = await getDoc(doc(db, "members", uid));
     if (memUID.exists()) return "member";
 
@@ -131,20 +132,31 @@ liSignIn.addEventListener("click", async () => {
 
 
 // -------- FORGOT PASSWORD --------
+
 if (forgotPassBtn) {
   forgotPassBtn.addEventListener("click", async () => {
     liMsg.innerText = "";
     const email = liEmail.value.trim();
+
     if (!email) {
       liMsg.innerText = "Enter your email first.";
       return;
     }
+
     try {
+      const methods = await fetchSignInMethodsForEmail(auth, email);
+
+      if (methods.length === 0) {
+        liMsg.innerText = "Invalid login email.";
+        return;
+      }
+
       await sendPasswordResetEmail(auth, email);
       liMsg.innerText = "Password reset email sent.";
+
     } catch (e) {
-      console.error('reset password', e);
-      liMsg.innerText = e.message || 'Failed to send reset email';
+      console.error("reset password", e);
+      liMsg.innerText = "Something went wrong. Try again.";
     }
   });
 }
@@ -161,8 +173,8 @@ if (doSignUp) {
     const roll = suRoll.value.trim();
     const branch = suBranch.value.trim();
 
-    if (!name || !email || !pass) {
-      suMsg.innerText = "Please fill name, email, password";
+    if (!name || !email || !pass || !year || !roll || !branch) {
+      suMsg.innerText = "Please fill all fields.";
       return;
     }
 
@@ -196,4 +208,5 @@ if (doSignUp) {
     }
   });
 }
+
 
