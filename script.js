@@ -1,6 +1,6 @@
 // ---- FIREBASE ----
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, fetchSignInMethodsForEmail } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
     import { getFirestore, collection, addDoc, setDoc, doc, getDoc, getDocs, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
 
     const firebaseConfig = {
@@ -150,11 +150,33 @@
     });
 
     // Forgot password
-    document.getElementById('forgotPass').addEventListener('click',async()=>{
+    document.getElementById('forgotPass').addEventListener('click', async () => {
       const email = siEmail.value.trim();
-      if(!email){siMsg.innerText='Enter your email first.';return}
-      try{await sendPasswordResetEmail(auth,email);siMsg.innerText='Password reset email sent.'}catch(e){siMsg.innerText=e.message}
+
+      if (!email) {
+        siMsg.innerText = 'Enter your email first.';
+        return;
+      }
+
+      try {
+        // Check if email exists
+        const methods = await fetchSignInMethodsForEmail(auth, email);
+
+        if (methods.length === 0) {
+          siMsg.innerText = 'Invalid login email.';
+          return;
+        }
+
+        // If email exists, send reset email
+        await sendPasswordResetEmail(auth, email);
+        siMsg.innerText = 'Password reset email sent.';
+
+      } catch (e) {
+        siMsg.innerText = 'Something went wrong. Try again.';
+        console.error(e);
+      }
     });
+
 
     // Auth state & admin detection
     import('https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js').then(({onAuthStateChanged})=>{
@@ -172,7 +194,7 @@
           authBtn.innerText = 'Signed in as ' + user.email;
           logoutBtn.style.display = 'inline-block';
 
-          // ✅ RELOAD UI AFTER ADMIN CHECK
+          //RELOAD UI AFTER ADMIN CHECK
           loadMembers();
           loadEvents();
           loadPhotos();
@@ -270,7 +292,7 @@
           addedAt: new Date().toISOString()
         });
 
-        // ✅ CLEAR FORM
+        //CLEAR FORM
         nameEl.value = '';
         emailEl.value = '';
         yearEl.value = '';
@@ -333,7 +355,7 @@
         createdAt: new Date().toISOString()
       });
 
-      // ✅ CLEAR FORM
+      //CLEAR FORM
       titleEl.value = '';
       descEl.value = '';
       whenEl.value = '';
@@ -457,7 +479,7 @@
             </div>
           `;
 
-          // 🔴 DELETE BUTTON (ADMIN ONLY)
+          // DELETE BUTTON (ADMIN ONLY)
           if (isAdmin) {
             const delBtn = document.createElement('button');
             delBtn.className = 'btn danger';
@@ -500,12 +522,10 @@
           eventsArr.push({ ...d, id: docSnap.id });
         });
 
-        // 🔹 SORT ALL EVENTS (calendar needs order too)
+        //SORT ALL EVENTS (calendar needs order too)
         eventsArr.sort((a, b) => new Date(a.when) - new Date(b.when));
 
-        // ===============================
-        // 📅 CALENDAR → ALL EVENTS
-        // ===============================
+        // CALENDAR → ALL EVENTS
         eventsArr.forEach(e => {
           fcEvents.push({
             id: e.id,
@@ -519,9 +539,8 @@
           });
         });
 
-        // ===============================
-        // 📋 LIST → ONLY UPCOMING EVENTS
-        // ===============================
+
+        // LIST → ONLY UPCOMING EVENTS
         const upcoming = eventsArr.filter(
           e => new Date(e.when) >= now
         );
@@ -556,9 +575,7 @@
           }
         });
 
-        // ===============================
-        // 🔄 REFRESH CALENDAR
-        // ===============================
+        // REFRESH CALENDAR
         if (fcCalendar) {
           fcCalendar.removeAllEvents();
           fcCalendar.addEventSource(fcEvents);
@@ -597,7 +614,7 @@
 
           wrap.appendChild(el);
 
-          // 🔴 DELETE BUTTON (ADMIN ONLY)
+          // DELETE BUTTON (ADMIN ONLY)
           if (isAdmin && p.id) {
             const delBtn = document.createElement('button');
             delBtn.className = 'btn danger';
@@ -626,12 +643,9 @@
       }
     }
 
-    // --------------------------
+
     // FullCalendar: init & helpers
-    // --------------------------
     import('https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js').then(({ FullCalendar })=>{
-      // make sure it's available; create instance after DOM
-      // initFullCalendar() will be called from loadEvents when needed
     });
 
     function initFullCalendar(){
